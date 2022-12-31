@@ -2,8 +2,13 @@ const express = require('express');
 const dotenv = require('dotenv');
 const colors = require('colors');
 
+const connectDB = require('./config/db');
+
 // Adding Config FIle
 dotenv.config({ path: './config/config.env' });
+
+// Connect Database
+connectDB();
 
 const app = express();
 
