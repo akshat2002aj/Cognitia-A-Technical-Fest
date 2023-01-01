@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const EventSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+  },
   name: {
     type: String,
     required: true,
@@ -61,6 +64,12 @@ const EventSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+});
+
+EventSchema.pre('save', async function (next) {
+  let doc = this;
+  this._id = await counter.generateId('event_id', 'event', doc);
+  next();
 });
 
 module.exports = mongoose.model('Event', EventSchema);

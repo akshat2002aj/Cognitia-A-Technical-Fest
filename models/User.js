@@ -1,18 +1,23 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const UserSchema = mongoose.Schema({
+  _id: {
+    type: String,
+  },
   name: {
     type: String,
     required: true,
     trim: true,
   },
-  image: {
-    type: String,
-    required: true,
-  },
   email: {
     type: String,
     required: true,
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email',
+    ],
   },
   password: {
     type: String,
@@ -41,7 +46,7 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  userType: {
+  role: {
     type: String,
     enum: ['admin', 'user', 'teamMember'],
     default: 'user',
@@ -59,6 +64,31 @@ const UserSchema = mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Event',
   },
+  image: {
+    type: String,
+  },
 });
 
-module.exports = mongoose.model('User', UserSchema);
+EventSchema.pre('save', async function (next) {
+  let doc = this;
+  this._id = await counter.generateId('user_id', 'user', doc);
+  next();
+});
+
+//Encrypt password with bcrypt
+UserSchema.pre('save', async function (next) {
+  let doc = this;
+  const salt = await bcrypt.genSalt(10);
+  let password = await bcrypt.hash(doc.password, salt);
+  this.password = password;
+  next();
+});
+
+// Sign Jwt and return
+UserSchema.methods.getSignedJwtToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+};
+
+UserSchema.methods = module.exports = mongoose.model('User', UserSchema);
