@@ -1,19 +1,23 @@
 const Counter = require('../models/Counter');
 
 getSequenceNumber = async (seqName) => {
-  const counter = await Counter.findByIdAndUpdate(
-    { _id: seqName },
-    {
-      $inc: { seq: 1 },
-    },
-    {
-      new: true,
+  try {
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: seqName },
+      {
+        $inc: { seq: 1 },
+      },
+      {
+        new: true,
+      }
+    );
+    if (!counter) {
+      return null;
     }
-  );
-  if (!counter) {
-    return null;
+    return counter.seq;
+  } catch (error) {
+    console.log(error);
   }
-  return counter.seq;
 };
 
 insertCounter = async (seqName) => {
@@ -30,8 +34,8 @@ exports.generateId = async (seqName, modelName, doc) => {
     seq = 1;
   }
   const id =
-    doc.festName.toUpperCase().substr(0, 3) +
-    doc.year.toString().substr(2, 4) +
+    'COG' +
+    '22' +
     modelName.toUpperCase().substr(0, 3) +
     (100000 + seq).toString();
   return id;

@@ -3,6 +3,10 @@ const dotenv = require('dotenv');
 const colors = require('colors');
 
 const connectDB = require('./config/db');
+const errorHandler = require('./middlewares/error');
+
+// Route files
+const auth = require('./routes/auth');
 
 // Adding Config FIle
 dotenv.config({ path: './config/config.env' });
@@ -13,6 +17,12 @@ connectDB();
 const app = express();
 
 app.use(express.json());
+
+// Mount routes
+app.use('/api', auth);
+
+// Error Handler
+app.use(errorHandler);
 
 const server = app.listen(
   process.env.PORT || 5000,

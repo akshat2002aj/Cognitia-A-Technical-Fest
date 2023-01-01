@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { findByIdAndUpdate } = require('./Event');
 
 const CounterSchema = new mongoose.Schema({
   _id: {

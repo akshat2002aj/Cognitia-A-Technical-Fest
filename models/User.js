@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const counter = require('../utils/counter');
 
 const UserSchema = mongoose.Schema({
   _id: {
@@ -8,53 +9,67 @@ const UserSchema = mongoose.Schema({
   },
   name: {
     type: String,
-    required: true,
+    required: [true, 'Please add a name'],
     trim: true,
   },
   email: {
     type: String,
-    required: true,
+    unique: true,
+    required: [true, 'Please add a email address'],
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
       'Please add a valid email',
     ],
   },
+  confirmEmailToken: String,
+  isEmailConfirmed: {
+    type: Boolean,
+    default: false,
+  },
   password: {
     type: String,
-    required: true,
+    required: [true, 'Please add a password'],
   },
   phone: {
     type: String,
-    required: true,
+    required: [true, 'Please add a phone number'],
     minLength: 10,
     maxLength: 14,
   },
   gender: {
     type: String,
-    required: true,
-    enum: ['Male', 'Female', 'Others'],
+    required: [true, 'Please add a gender'],
+    enum: {
+      values: ['Male', 'Female', 'Others'],
+      message: 'Gender must be one of Male, Female, or Others',
+    },
   },
   collegeId: {
     type: String,
-    required: true,
+    required: [true, 'Please add a collegeId'],
   },
   department: {
     type: String,
-    required: true,
+    required: [true, 'Please add department'],
   },
   cityState: {
     type: String,
-    required: true,
+    required: [true, 'Please add City and State Name'],
   },
   role: {
     type: String,
-    enum: ['admin', 'user', 'teamMember'],
+    enum: {
+      values: ['admin', 'user', 'teamMember'],
+      message: 'Role must be one of admin, user or teamMember',
+    },
     default: 'user',
-    required: true,
   },
   studentType: {
     type: String,
-    enum: ['NITM', 'OTHER'],
+    enum: {
+      values: ['NITM', 'OTHER'],
+      message: 'Student Type must be one of NITM or OTHER',
+    },
   },
   position: {
     type: String,
@@ -69,15 +84,19 @@ const UserSchema = mongoose.Schema({
   },
 });
 
-EventSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function (next) {
+  // Create if for event
   let doc = this;
   this._id = await counter.generateId('user_id', 'user', doc);
-  next();
-});
 
-//Encrypt password with bcrypt
-UserSchema.pre('save', async function (next) {
-  let doc = this;
+  // Check Student Type
+  let emailType = doc.email.split('@')[1];
+  if (emailType === 'nitm.ac.in') {
+    this.studentType = 'NITM';
+  } else {
+    this.studentType = 'OTHER';
+  }
+  //Encrypt password with bcrypt
   const salt = await bcrypt.genSalt(10);
   let password = await bcrypt.hash(doc.password, salt);
   this.password = password;
