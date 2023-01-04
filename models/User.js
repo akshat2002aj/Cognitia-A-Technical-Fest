@@ -29,6 +29,9 @@ const UserSchema = mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Please add a password'],
+    select: false,
+    trim: true,
+    minLength: [6, 'Minimum length of password should be 6 characters'],
   },
   phone: {
     type: String,
@@ -108,6 +111,12 @@ UserSchema.methods.getSignedJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
+};
+
+// Math Password
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+  const isMatch = await bcrypt.compare(enteredPassword, this.password);
+  return isMatch;
 };
 
 UserSchema.methods = module.exports = mongoose.model('User', UserSchema);

@@ -19,7 +19,7 @@ const app = express();
 app.use(express.json());
 
 // Mount routes
-app.use('/api', auth);
+app.use('/api/v1/auth', auth);
 
 // Error Handler
 app.use(errorHandler);
