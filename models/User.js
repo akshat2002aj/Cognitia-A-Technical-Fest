@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const counter = require('../utils/counter');
 
 const UserSchema = mongoose.Schema({
@@ -90,7 +91,7 @@ const UserSchema = mongoose.Schema({
 UserSchema.pre('save', async function (next) {
   // Create if for event
   let doc = this;
-  this._id = await counter.generateId('user_id', 'user', doc);
+  if (!this._id) this._id = await counter.generateId('user_id', 'user', doc);
 
   // Check Student Type
   let emailType = doc.email.split('@')[1];
@@ -100,6 +101,9 @@ UserSchema.pre('save', async function (next) {
     this.studentType = 'OTHER';
   }
   //Encrypt password with bcrypt
+  if (!this.isModified('password')) {
+    next();
+  }
   const salt = await bcrypt.genSalt(10);
   let password = await bcrypt.hash(doc.password, salt);
   this.password = password;
@@ -117,6 +121,21 @@ UserSchema.methods.getSignedJwtToken = function () {
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   const isMatch = await bcrypt.compare(enteredPassword, this.password);
   return isMatch;
+};
+
+// Generate email confirm token
+UserSchema.methods.generateEmailConfirmToken = function (next) {
+  // email confirmation token
+  const confirmationToken = crypto.randomBytes(20).toString('hex');
+
+  this.confirmEmailToken = crypto
+    .createHash('sha256')
+    .update(confirmationToken)
+    .digest('hex');
+
+  const confirmTokenExtend = crypto.randomBytes(100).toString('hex');
+  const confirmTokenCombined = `${confirmationToken}.${confirmTokenExtend}`;
+  return confirmTokenCombined;
 };
 
 UserSchema.methods = module.exports = mongoose.model('User', UserSchema);

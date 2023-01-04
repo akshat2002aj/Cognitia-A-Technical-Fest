@@ -2,21 +2,24 @@ const Counter = require('../models/Counter');
 
 getSequenceNumber = async (seqName) => {
   try {
-    const counter = await Counter.findByIdAndUpdate(
+    const counter = await Counter.findById({ _id: seqName });
+    if (!counter) {
+      return null;
+    }
+    const updatedCounter = await Counter.findByIdAndUpdate(
       { _id: seqName },
       {
-        $inc: { seq: 1 },
+        seq: counter.seq + 1,
       },
       {
         new: true,
       }
     );
-    if (!counter) {
-      return null;
-    }
+
+    // console.log(counter);
     return counter.seq;
   } catch (error) {
-    console.log(error);
+    console.log('counter:\n', error);
   }
 };
 
@@ -38,5 +41,6 @@ exports.generateId = async (seqName, modelName, doc) => {
     '22' +
     modelName.toUpperCase().substr(0, 3) +
     (100000 + seq).toString();
+  // console.log('Hrg:', id);
   return id;
 };
