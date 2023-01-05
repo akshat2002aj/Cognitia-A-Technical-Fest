@@ -126,9 +126,26 @@ exports.logIn = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/auth/logout
 // @access    Public
 exports.logout = asyncHandler(async (req, res, next) => {
+  res.cookie('token', 'none', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
   res.status(200).json({
     success: true,
     data: {},
+  });
+});
+
+// @desc        Get current logged in user
+// @route       GET /api/v1/auth/me
+// @access      Private
+exports.getMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    data: user,
   });
 });
 
@@ -220,8 +237,22 @@ sendAuthTokenResponse = (user, statusCode, res) => {
   // Create Token
   const token = user.getSignedJwtToken();
 
-  res.status(statusCode).json({
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'production') {
+    options.secure = true;
+  }
+
+  res.status(statusCode).cookie('token', token, options).json({
     success: true,
     token,
   });
 };
+
+// TODO; add update user route (if email than email verification )
+// TODO; add update password route

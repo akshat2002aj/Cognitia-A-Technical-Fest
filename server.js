@@ -4,6 +4,7 @@ const colors = require('colors');
 
 const connectDB = require('./config/db');
 const errorHandler = require('./middlewares/error');
+const cookieParser = require('cookie-parser');
 
 // Route files
 const auth = require('./routes/auth');
@@ -16,7 +17,11 @@ connectDB();
 
 const app = express();
 
+// Body Parser
 app.use(express.json());
+
+// Cookie Parser
+app.use(cookieParser());
 
 // Mount routes
 app.use('/api/v1/auth', auth);
