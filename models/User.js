@@ -34,6 +34,8 @@ const UserSchema = mongoose.Schema({
     trim: true,
     minLength: [6, 'Minimum length of password should be 6 characters'],
   },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
   phone: {
     type: String,
     required: [true, 'Please add a phone number'],
@@ -136,6 +138,23 @@ UserSchema.methods.generateEmailConfirmToken = function (next) {
   const confirmTokenExtend = crypto.randomBytes(100).toString('hex');
   const confirmTokenCombined = `${confirmationToken}.${confirmTokenExtend}`;
   return confirmTokenCombined;
+};
+
+// Generate password reset token
+UserSchema.methods.getResetPasswordToken = function (next) {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 UserSchema.methods = module.exports = mongoose.model('User', UserSchema);
