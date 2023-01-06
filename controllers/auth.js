@@ -237,6 +237,78 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   sendAuthTokenResponse(user, 200, res);
 });
 
+// @desc        Update user details
+// @route       PUT /api/v1/auth/updatedetails
+// @access      Private
+exports.updateDetails = asyncHandler(async (req, res, next) => {
+  let user;
+  console.log(req.user.body);
+  if (req.user.email !== req.body.email && req.body.email) {
+    user = await User.findById(req.user.id);
+    req.body.isEmailConfirmed = false;
+    // grab token and send to email
+    const confirmEmailToken = user.generateEmailConfirmToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset url
+    const confirmEmailURL = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/auth/confirmemail?token=${confirmEmailToken}`;
+
+    const message = `
+  <div>
+    <h1>Email Confirmation</h1>
+    <h2>Hello ${user.name}</h2>
+    <p>Thank you for registering. Please confirm your email by clicking on the following link</p>
+    <a href=${confirmEmailURL}> Click here</a>
+  </div>`;
+
+    try {
+      const sendResult = await sendEmail({
+        email: user.email,
+        subject: 'Email confirmation token',
+        message,
+      });
+    } catch (error) {
+      user.confirmEmailToken = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return next(new ErrorResponse('Email could not be send.', 500));
+    }
+  }
+  user = await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
+// @desc        Update password
+// @route       PUT /api/v1/auth/updatepassword
+// @access      Private
+exports.updatePassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('+password');
+
+  // Check current password
+  if (!(await user.matchPassword(req.body.currentPassword))) {
+    return next(new ErrorResponse(`Password is incorrect`, 401));
+  }
+
+  user.password = req.body.newPassword;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    data: 'Password updated successfully',
+  });
+});
+
 sendAuthTokenResponse = (user, statusCode, res) => {
   // Create Token
   const token = user.getSignedJwtToken();
@@ -257,6 +329,3 @@ sendAuthTokenResponse = (user, statusCode, res) => {
     token,
   });
 };
-
-// TODO; add update user route (if email than email verification )
-// TODO; add update password route
