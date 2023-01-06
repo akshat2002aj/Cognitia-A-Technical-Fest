@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const counter = require('../utils/counter');
 
 const TeamSchema = mongoose.Schema({
-  _id: {
+  nitmId: {
     type: String,
   },
   teamOwner: {
@@ -15,9 +16,11 @@ const TeamSchema = mongoose.Schema({
   },
 });
 
-EventSchema.pre('save', async function (next) {
+TeamSchema.pre('save', async function (next) {
+  // Create if for event
   let doc = this;
-  this._id = await counter.generateId('team_id', 'team', doc);
+  if (!this.nitmId)
+    this.nitmId = await counter.generateId('team_id', 'team', doc);
   next();
 });
 

@@ -40,7 +40,7 @@ exports.generateId = async (seqName, modelName, doc) => {
   const id =
     'NITM' +
     year.toString().substr(2, 2) +
-    modelName.toUpperCase().substr(0, 3) +
+    modelName.toUpperCase().substr(0, 4) +
     (1000 + seq).toString();
   // console.log('Hrg:', id);
   return id;

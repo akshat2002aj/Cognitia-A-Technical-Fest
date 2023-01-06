@@ -91,7 +91,7 @@ const UserSchema = mongoose.Schema({
 });
 
 UserSchema.pre('save', async function (next) {
-  // Create if for event
+  // Create id for event
   let doc = this;
   if (!this.nitmId)
     this.nitmId = await counter.generateId('user_id', 'user', doc);

@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 // Route files
 const auth = require('./routes/auth');
 const event = require('./routes/event');
+const team = require('./routes/team');
 
 // Adding Config FIle
 dotenv.config({ path: './config/config.env' });
@@ -27,6 +28,7 @@ app.use(cookieParser());
 // Mount routes
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/event', event);
+app.use('/api/v1/team', team);
 
 // Error Handler
 app.use(errorHandler);
