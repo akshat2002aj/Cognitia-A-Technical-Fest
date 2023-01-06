@@ -36,11 +36,12 @@ exports.generateId = async (seqName, modelName, doc) => {
     await insertCounter(seqName);
     seq = 1;
   }
+  const year = new Date().getFullYear();
   const id =
-    'COG' +
-    '22' +
+    'NITM' +
+    year.toString().substr(2, 2) +
     modelName.toUpperCase().substr(0, 3) +
-    (100000 + seq).toString();
+    (1000 + seq).toString();
   // console.log('Hrg:', id);
   return id;
 };

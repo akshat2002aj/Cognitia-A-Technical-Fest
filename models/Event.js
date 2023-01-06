@@ -1,12 +1,10 @@
 const mongoose = require('mongoose');
 
 const EventSchema = new mongoose.Schema({
-  _id: {
-    type: String,
-  },
   name: {
     type: String,
     required: true,
+    unique: true,
     trim: true,
   },
   description: {
@@ -47,7 +45,7 @@ const EventSchema = new mongoose.Schema({
   },
   year: {
     type: Number,
-    required: true,
+    default: new Date().getFullYear(),
   },
   festType: {
     type: String,
@@ -64,12 +62,6 @@ const EventSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-});
-
-EventSchema.pre('save', async function (next) {
-  let doc = this;
-  this._id = await counter.generateId('event_id', 'event', doc);
-  next();
 });
 
 module.exports = mongoose.model('Event', EventSchema);

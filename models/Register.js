@@ -7,7 +7,7 @@ const RegisterSchema = mongoose.Schema({
     required: true,
   },
   teamId: {
-    type: mongoose.Schema.ObjectId,
+    type: [mongoose.Schema.ObjectId],
     ref: 'Team',
     required: true,
   },

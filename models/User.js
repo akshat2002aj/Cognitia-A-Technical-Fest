@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const counter = require('../utils/counter');
 
 const UserSchema = mongoose.Schema({
-  _id: {
+  nitmId: {
     type: String,
   },
   name: {
@@ -93,7 +93,8 @@ const UserSchema = mongoose.Schema({
 UserSchema.pre('save', async function (next) {
   // Create if for event
   let doc = this;
-  if (!this._id) this._id = await counter.generateId('user_id', 'user', doc);
+  if (!this.nitmId)
+    this.nitmId = await counter.generateId('user_id', 'user', doc);
 
   // Check Student Type
   let emailType = doc.email.split('@')[1];
@@ -102,6 +103,7 @@ UserSchema.pre('save', async function (next) {
   } else {
     this.studentType = 'OTHER';
   }
+
   //Encrypt password with bcrypt
   if (!this.isModified('password')) {
     next();

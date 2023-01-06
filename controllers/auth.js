@@ -119,6 +119,10 @@ exports.logIn = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Invalid credentials`, 401));
   }
 
+  if (!user.isEmailConfirmed) {
+    return next(new ErrorResponse(`Please verify your email.`, 401));
+  }
+
   sendAuthTokenResponse(user, 200, res);
 });
 
