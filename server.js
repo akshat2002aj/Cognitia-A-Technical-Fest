@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const auth = require('./routes/auth');
 const event = require('./routes/event');
 const team = require('./routes/team');
+const user = require('./routes/users');
 
 // Adding Config FIle
 dotenv.config({ path: './config/config.env' });
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/event', event);
 app.use('/api/v1/team', team);
+app.use('/api/v1/user', user);
 
 // Error Handler
 app.use(errorHandler);
