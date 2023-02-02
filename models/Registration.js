@@ -4,11 +4,10 @@ const RegisterSchema = mongoose.Schema({
   eventId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Event',
-    required: true,
   },
-  teamId: {
+  teamsId: {
     type: [mongoose.Schema.ObjectId],
-    ref: 'Team',
+    ref: 'Teams',
     required: true,
   },
 });

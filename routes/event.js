@@ -9,7 +9,14 @@ const {
   deleteEvent,
 } = require('../controllers/event');
 const Event = require('../models/Event');
+
+// Include other resourse routers
+const registerRouter = require('./registration');
+
 const router = express.Router();
+
+// Re-route into other resourse routers
+router.use('/:eventId/register', registerRouter);
 
 router
   .route('/')

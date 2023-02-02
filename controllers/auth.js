@@ -145,7 +145,10 @@ exports.logout = asyncHandler(async (req, res, next) => {
 // @route       GET /api/v1/auth/me
 // @access      Private
 exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id).populate({
+    path: 'registeredEvents',
+    select: 'name description ',
+  });
 
   res.status(200).json({
     success: true,

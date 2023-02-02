@@ -2,6 +2,7 @@ const User = require('../models/User');
 const asyncHandler = require('../middlewares/async');
 const ErrorResponse = require('../utils/errorResponse');
 const sendEmail = require('../utils/sendEmail');
+// TODO: Upload Photo Route
 
 // @desc      Create user
 // @route     POST /api/v1/users
