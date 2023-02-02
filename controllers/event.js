@@ -1,6 +1,7 @@
 const Event = require('../models/Event');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middlewares/async');
+// TODO: Upload Photo Route
 
 // @desc        Create a new event
 // @route       POST /api/v1/event
